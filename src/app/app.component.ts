@@ -49,8 +49,8 @@ export class AppComponent implements OnInit {
   title = 'danter';
   selectedCalculate = '';
   selectedThermocouple: string;
-  temperatureRange= '';
-  voltageRange= '';
+  temperatureRange = '';
+  voltageRange = '';
   calculate: SelectInterface[] = [
     {value: 'temperature', viewValue: 'mV->T'},
     {value: 'voltage', viewValue: 'T->mV'},
@@ -67,16 +67,24 @@ export class AppComponent implements OnInit {
       tempamb: ['', [Validators.required]],
     });
     this.form?.get('scale_type')?.valueChanges?.subscribe((scaleType) => {
-      this.thermRangeSet(scaleType)
+      this.thermRangeSet(this.form.get('thermo_type')?.value || '', scaleType)
     })
-    // this.form.valueChanges.subscribe((val)=>console.log(val))
-    // this.form.valueChanges.subscribe((val)=>console.log(val))
+    this.form?.get('thermo_type')?.valueChanges?.subscribe((thermoType) => {
+      this.thermRangeSet(thermoType, this.form.get('scale_type')?.value || '',)
+    })
 
   }
 
 
   thermocouple: SelectInterface[] = [
     {value: 'R', viewValue: 'Type-R'},
+    {value: 'B', viewValue: 'Type-B'},
+    {value: 'E', viewValue: 'Type-E'},
+    {value: 'J', viewValue: 'Type-J'},
+    {value: 'K', viewValue: 'Type-K'},
+    {value: 'N', viewValue: 'Type-N'},
+    {value: 'S', viewValue: 'Type-S'},
+    {value: 'T', viewValue: 'Type-T'},
   ];
   typesTemperature: SelectInterface[] = [
     {value: 'C', viewValue: '°C'},
@@ -104,13 +112,12 @@ export class AppComponent implements OnInit {
   thermCalc() //computes required values for each type
   {
 
-     let calcuType = this.form.get('calc_type')?.value
+    let calcuType = this.form.get('calc_type')?.value
     let thermoType = this.form.get('thermo_type')?.value
-    let  mv_func1 = this.form.get('mv_read')?.value
-    let  temp_func1f = this.form.get('temp_in')?.value
-    let  scaleType= this.form.get('scale_type')?.value
-    let  temp_amb = this.form.get('tempamb')?.value
-    console.log("Called calculator")
+    let mv_func1 = this.form.get('mv_read')?.value
+    let temp_func1f = this.form.get('temp_in')?.value
+    let scaleType = this.form.get('scale_type')?.value
+    let temp_amb = this.form.get('tempamb')?.value
     let Coef = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; //prepare coefficient array
     let Coef_amb = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; //prepare ambient coefficients array
 
@@ -130,14 +137,13 @@ export class AppComponent implements OnInit {
         temp_amb = temp_amb - 273.15;
         break;
     }
-
     switch (thermoType) //for ambient mv calculation
     {
-      case "1": //Type B
+      case "B": //Type B
 
         if (temp_amb >= 0 && temp_amb <= 630.616) //Range 1
         {
-          let Coef_amb = [0,
+           Coef_amb = [0,
             -0.246508183460 * Math.pow(10, -3),
             0.590404211710 * Math.pow(10, -5),
             -0.132579316360 * Math.pow(10, -8),
@@ -155,7 +161,7 @@ export class AppComponent implements OnInit {
           ];
         } else if (temp_amb > 630.616 && temp_amb <= 1820.000) //Range 2
         {
-          let Coef_amb = [-0.389381686210 * Math.pow(10, 1),
+           Coef_amb = [-0.389381686210 * Math.pow(10, 1),
             0.285717474700 * Math.pow(10, -1),
             -0.848851047850 * Math.pow(10, -4),
             0.157852801640 * Math.pow(10, -6),
@@ -174,11 +180,11 @@ export class AppComponent implements OnInit {
         }
         break;
 
-      case "2": //Type E
+      case "E": //Type E
 
         if (temp_amb >= -200 && temp_amb <= 0) //Range 1
         {
-          let Coef_amb = [0,
+           Coef_amb = [0,
             0.586655087080 * Math.pow(10, -1),
             0.454109771240 * Math.pow(10, -4),
             -0.779980486860 * Math.pow(10, -6),
@@ -196,7 +202,7 @@ export class AppComponent implements OnInit {
           ];
         } else if (temp_amb > 0 && temp_amb <= 1000) //Range 2
         {
-          let Coef_amb = [0,
+           Coef_amb = [0,
             0.586655087100 * Math.pow(10, -1),
             0.450322755820 * Math.pow(10, -4),
             0.289084072120 * Math.pow(10, -7),
@@ -215,10 +221,10 @@ export class AppComponent implements OnInit {
         }
         break;
 
-      case "3": //Type J
+      case "J": //Type J
         if (temp_amb >= -210 && temp_amb <= 760) //Range 1
         {
-          let Coef_amb = [0,
+           Coef_amb = [0,
             0.503811878150 * Math.pow(10, -1),
             0.304758369300 * Math.pow(10, -4),
             -0.856810657200 * Math.pow(10, -7),
@@ -236,7 +242,7 @@ export class AppComponent implements OnInit {
           ];
         } else if (temp_amb > 760 && temp_amb <= 1200) //Range 2
         {
-          let Coef_amb = [0.296456256810 * Math.pow(10, 3),
+           Coef_amb = [0.296456256810 * Math.pow(10, 3),
             -0.149761277860 * Math.pow(10, 1),
             0.317871039240 * Math.pow(10, -2),
             -0.318476867010 * Math.pow(10, -5),
@@ -255,10 +261,10 @@ export class AppComponent implements OnInit {
         }
         break;
 
-      case "4": //Type K
+      case "K": //Type K
         if (temp_amb >= -270 && temp_amb <= 0) //Range 1
         {
-          let Coef_amb = [0,
+           Coef_amb = [0,
             0.394501280250 * Math.pow(10, -1),
             0.236223735980 * Math.pow(10, -4),
             -0.328589067840 * Math.pow(10, -6),
@@ -276,7 +282,7 @@ export class AppComponent implements OnInit {
           ];
         } else if (temp_amb > 0 && temp_amb <= 1372) //Range 2
         {
-          let Coef_amb = [-0.176004136860 * Math.pow(10, -1),
+           Coef_amb = [-0.176004136860 * Math.pow(10, -1),
             0.389212049750 * Math.pow(10, -1),
             0.185587700320 * Math.pow(10, -4),
             -0.994575928740 * Math.pow(10, -7),
@@ -299,7 +305,7 @@ export class AppComponent implements OnInit {
         }
         break;
 
-      case "5": //Type N
+      case "N": //Type N
         if (temp_amb >= -200 && temp_amb <= 0) //Range 1
         {
           let Coef_amb = [0,
@@ -342,7 +348,7 @@ export class AppComponent implements OnInit {
       case "R": //Type R
         if (temp_amb >= -50 && temp_amb <= 1064.180) //Range 1
         {
-           Coef_amb = [0,
+          Coef_amb = [0,
             0.528961729765 * Math.pow(10, -2),
             0.139166589782 * Math.pow(10, -4),
             -0.238855693017 * Math.pow(10, -7),
@@ -360,7 +366,7 @@ export class AppComponent implements OnInit {
           ];
         } else if (temp_amb > 1064.180 && temp_amb <= 1664.500) //Range 2
         {
-           Coef_amb = [0.295157925316 * Math.pow(10, 1),
+          Coef_amb = [0.295157925316 * Math.pow(10, 1),
             -0.252061251332 * Math.pow(10, -2),
             0.159564501865 * Math.pow(10, -4),
             -0.764085947576 * Math.pow(10, -8),
@@ -378,7 +384,7 @@ export class AppComponent implements OnInit {
           ];
         } else if (temp_amb > 1664.500 && temp_amb <= 1768.100) //Range 3
         {
-           Coef_amb = [0.152232118209 * Math.pow(10, 3),
+          Coef_amb = [0.152232118209 * Math.pow(10, 3),
             -0.268819888545 * Math.pow(10, 0),
             0.171280280471 * Math.pow(10, -3),
             -0.345895706453 * Math.pow(10, -7),
@@ -397,10 +403,10 @@ export class AppComponent implements OnInit {
         }
         break;
 
-      case "7": //Type S
+      case "S": //Type S
         if (temp_amb >= -50 && temp_amb <= 1064.180) //Range 1
         {
-          let Coef_amb = [0,
+           Coef_amb = [0,
             0.540313308631 * Math.pow(10, -2),
             0.125934289740 * Math.pow(10, -4),
             -0.232477968689 * Math.pow(10, -7),
@@ -418,7 +424,7 @@ export class AppComponent implements OnInit {
           ];
         } else if (temp_amb > 1064.180 && temp_amb <= 1664.500) //Range 2
         {
-          let Coef_amb = [0.132900444085 * Math.pow(10, 1),
+           Coef_amb = [0.132900444085 * Math.pow(10, 1),
             0.334509311344 * Math.pow(10, -2),
             0.654805192818 * Math.pow(10, -5),
             -0.164856259209 * Math.pow(10, -8),
@@ -436,7 +442,7 @@ export class AppComponent implements OnInit {
           ];
         } else if (temp_amb > 1664.500 && temp_amb <= 1768.100) //Range 3
         {
-          let Coef_amb = [0.146628232636 * Math.pow(10, 3),
+           Coef_amb = [0.146628232636 * Math.pow(10, 3),
             -0.258430516752 * Math.pow(10, 0),
             0.163693574641 * Math.pow(10, -3),
             -0.330439046987 * Math.pow(10, -7),
@@ -455,10 +461,11 @@ export class AppComponent implements OnInit {
         }
         break;
 
-      case "8": //Type T
+      case "T": //Type T
+
         if (temp_amb >= -200 && temp_amb <= 0) //Range 1
         {
-          let Coef_amb = [0,
+           Coef_amb = [0,
             0.387481063640 * Math.pow(10, -1),
             0.441944343470 * Math.pow(10, -4),
             0.118443231050 * Math.pow(10, -6),
@@ -476,7 +483,7 @@ export class AppComponent implements OnInit {
           ];
         } else if (temp_amb > 0 && temp_amb <= 400) //Range 2
         {
-          let Coef_amb = [0,
+           Coef_amb = [0,
             0.387481063640 * Math.pow(10, -1),
             0.332922278800 * Math.pow(10, -4),
             0.206182434040 * Math.pow(10, -6),
@@ -507,13 +514,13 @@ export class AppComponent implements OnInit {
 
     switch (thermoType) //for main calculation
     {
-      case "1": //B Type
+      case "B": //B Type
         switch (calcuType) {
           case "temperature": //mV to T(inverse)
             if (mv_func1 >= 0.291 && mv_func1 <= 2.431) //Range 1
             {
               let OOR_Flag = 0;
-              let Coef = [9.8423321 * Math.pow(10, 1),
+               Coef = [9.8423321 * Math.pow(10, 1),
                 6.9971500 * Math.pow(10, 2),
                 -8.4765304 * Math.pow(10, 2),
                 1.0052644 * Math.pow(10, 3),
@@ -532,7 +539,7 @@ export class AppComponent implements OnInit {
             } else if (mv_func1 > 2.431 && mv_func1 <= 13.820) //Range 2
             {
               let OOR_Flag = 0;
-              let Coef = [2.1315071 * Math.pow(10, 2),
+               Coef = [2.1315071 * Math.pow(10, 2),
                 2.8510504 * Math.pow(10, 2),
                 -5.2742887 * Math.pow(10, 1),
                 9.9160804 * Math.pow(10, 0),
@@ -560,7 +567,7 @@ export class AppComponent implements OnInit {
             if (temp_func1 >= 250 && temp_func1 <= 630.616) //Range 1
             {
               let OOR_Flag = 0;
-              let Coef = [0,
+               Coef = [0,
                 -0.246508183460 * Math.pow(10, -3),
                 0.590404211710 * Math.pow(10, -5),
                 -0.132579316360 * Math.pow(10, -8),
@@ -579,7 +586,7 @@ export class AppComponent implements OnInit {
             } else if (temp_func1 > 630.616 && temp_func1 <= 1820.000) //Range 2
             {
               let OOR_Flag = 0;
-              let Coef = [-0.389381686210 * Math.pow(10, 1),
+               Coef = [-0.389381686210 * Math.pow(10, 1),
                 0.285717474700 * Math.pow(10, -1),
                 -0.848851047850 * Math.pow(10, -4),
                 0.157852801640 * Math.pow(10, -6),
@@ -605,13 +612,13 @@ export class AppComponent implements OnInit {
         }
         break;
 
-      case "2": //E Type
+      case "E": //E Type
         switch (calcuType) {
           case "temperature": //mV to T(inverse)
             if (mv_func1 >= -8.825 && mv_func1 <= 0) //Range 1
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [0,
+               Coef = [0,
                 1.6977288 * Math.pow(10, 1),
                 -4.3514970 * Math.pow(10, -1),
                 -1.5859697 * Math.pow(10, -1),
@@ -630,7 +637,7 @@ export class AppComponent implements OnInit {
             } else if (mv_func1 > 0 && mv_func1 <= 76.373) //Range 2
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [0,
+               Coef = [0,
                 1.7057035 * Math.pow(10, 1),
                 -2.3301759 * Math.pow(10, -1),
                 6.5435585 * Math.pow(10, -3),
@@ -658,7 +665,7 @@ export class AppComponent implements OnInit {
             if (temp_func1 >= -200 && temp_func1 <= 0) //Range 1
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [0,
+               Coef = [0,
                 0.586655087080 * Math.pow(10, -1),
                 0.454109771240 * Math.pow(10, -4),
                 -0.779980486860 * Math.pow(10, -6),
@@ -677,7 +684,7 @@ export class AppComponent implements OnInit {
             } else if (temp_func1 > 0 && temp_func1 <= 1000) //Range 2
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [0,
+               Coef = [0,
                 0.586655087100 * Math.pow(10, -1),
                 0.450322755820 * Math.pow(10, -4),
                 0.289084072120 * Math.pow(10, -7),
@@ -703,13 +710,13 @@ export class AppComponent implements OnInit {
         }
         break;
 
-      case "3": //J Type
+      case "J": //J Type
         switch (calcuType) {
           case "temperature": //mV to T(inverse)
             if (mv_func1 >= -8.095 && mv_func1 <= 0) //Range 1
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [0,
+               Coef = [0,
                 1.9528268 * Math.pow(10, 1),
                 -1.2286185 * Math.pow(10, 0),
                 -1.0752178 * Math.pow(10, 0),
@@ -728,7 +735,7 @@ export class AppComponent implements OnInit {
             } else if (mv_func1 > 0 && mv_func1 <= 42.919) //Range 2
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [0,
+               Coef = [0,
                 1.978425 * Math.pow(10, 1),
                 -2.001204 * Math.pow(10, -1),
                 1.036969 * Math.pow(10, -2),
@@ -747,7 +754,7 @@ export class AppComponent implements OnInit {
             } else if (mv_func1 > 42.919 && mv_func1 <= 69.553) //Range 3
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [-3.11358187 * Math.pow(10, 3),
+               Coef = [-3.11358187 * Math.pow(10, 3),
                 3.00543684 * Math.pow(10, 2),
                 -9.94773230 * Math.pow(10, 0),
                 1.70276630 * Math.pow(10, -1),
@@ -775,7 +782,7 @@ export class AppComponent implements OnInit {
             if (temp_func1 >= -210 && temp_func1 <= 760) //Range 1
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [0,
+               Coef = [0,
                 0.503811878150 * Math.pow(10, -1),
                 0.304758369300 * Math.pow(10, -4),
                 -0.856810657200 * Math.pow(10, -7),
@@ -794,7 +801,7 @@ export class AppComponent implements OnInit {
             } else if (temp_func1 > 760 && temp_func1 <= 1200) //Range 2
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [0.296456256810 * Math.pow(10, 3),
+               Coef = [0.296456256810 * Math.pow(10, 3),
                 -0.149761277860 * Math.pow(10, 1),
                 0.317871039240 * Math.pow(10, -2),
                 -0.318476867010 * Math.pow(10, -5),
@@ -820,13 +827,13 @@ export class AppComponent implements OnInit {
         }
         break;
 
-      case "4": //K Type
+      case "K": //K Type
         switch (calcuType) {
           case "temperature": //mV to T(inverse)
             if (mv_func1 >= -5.891 && mv_func1 <= 0) //Range 1
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [0,
+               Coef = [0,
                 2.5173462 * Math.pow(10, 1),
                 -1.1662878 * Math.pow(10, 0),
                 -1.0833638 * Math.pow(10, 0),
@@ -845,7 +852,7 @@ export class AppComponent implements OnInit {
             } else if (mv_func1 > 0 && mv_func1 <= 20.644) //Range 2
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [0,
+               Coef = [0,
                 2.508355 * Math.pow(10, 1),
                 7.860106 * Math.pow(10, -2),
                 -2.503131 * Math.pow(10, -1),
@@ -864,7 +871,7 @@ export class AppComponent implements OnInit {
             } else if (mv_func1 > 20.644 && mv_func1 <= 54.886) //Range 3
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [-1.318058 * Math.pow(10, 2),
+               Coef = [-1.318058 * Math.pow(10, 2),
                 4.830222 * Math.pow(10, 1),
                 -1.646031 * Math.pow(10, 0),
                 5.464731 * Math.pow(10, -2),
@@ -892,7 +899,7 @@ export class AppComponent implements OnInit {
             if (temp_func1 >= -270 && temp_func1 <= 0) //Range 1
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [0,
+               Coef = [0,
                 0.394501280250 * Math.pow(10, -1),
                 0.236223735980 * Math.pow(10, -4),
                 -0.328589067840 * Math.pow(10, -6),
@@ -911,7 +918,7 @@ export class AppComponent implements OnInit {
             } else if (temp_func1 > 0 && temp_func1 <= 1372) //Range 2
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [-0.176004136860 * Math.pow(10, -1),
+               Coef = [-0.176004136860 * Math.pow(10, -1),
                 0.389212049750 * Math.pow(10, -1),
                 0.185587700320 * Math.pow(10, -4),
                 -0.994575928740 * Math.pow(10, -7),
@@ -941,13 +948,13 @@ export class AppComponent implements OnInit {
         }
         break;
 
-      case "5": //N Type
+      case "N": //N Type
         switch (calcuType) {
           case "temperature": //mV to T(inverse)
             if (mv_func1 >= -3.990 && mv_func1 <= 0) //Range 1
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [0,
+               Coef = [0,
                 3.8436847 * Math.pow(10, 1),
                 1.1010485 * Math.pow(10, 0),
                 5.2229312 * Math.pow(10, 0),
@@ -966,7 +973,7 @@ export class AppComponent implements OnInit {
             } else if (mv_func1 > 0 && mv_func1 <= 20.613) //Range 2
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [0,
+               Coef = [0,
                 3.86896 * Math.pow(10, 1),
                 -1.08267 * Math.pow(10, 0),
                 4.70205 * Math.pow(10, -2),
@@ -985,7 +992,7 @@ export class AppComponent implements OnInit {
             } else if (mv_func1 > 20.613 && mv_func1 <= 47.513) //Range 3
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [1.972485 * Math.pow(10, 1),
+               Coef = [1.972485 * Math.pow(10, 1),
                 3.300943 * Math.pow(10, 1),
                 -3.915159 * Math.pow(10, -1),
                 9.855391 * Math.pow(10, -3),
@@ -1013,7 +1020,7 @@ export class AppComponent implements OnInit {
             if (temp_func1 >= -200 && temp_func1 <= 0) //Range 1
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [0,
+               Coef = [0,
                 0.261591059620 * Math.pow(10, -1),
                 0.109574842280 * Math.pow(10, -4),
                 -0.938411115540 * Math.pow(10, -7),
@@ -1032,7 +1039,7 @@ export class AppComponent implements OnInit {
             } else if (temp_func1 > 0 && temp_func1 <= 1300) //Range 2
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [0,
+               Coef = [0,
                 0.259293946010 * Math.pow(10, -1),
                 0.157101418800 * Math.pow(10, -4),
                 0.438256272370 * Math.pow(10, -7),
@@ -1064,7 +1071,7 @@ export class AppComponent implements OnInit {
             if (mv_func1 >= -0.226 && mv_func1 <= 1.923) //Range 1
             {
               let OOR_Flag = 0; //Out of Range OFF
-               Coef = [0,
+              Coef = [0,
                 1.8891380 * Math.pow(10, 2),
                 -9.3835290 * Math.pow(10, 1),
                 1.3068619 * Math.pow(10, 2),
@@ -1083,7 +1090,7 @@ export class AppComponent implements OnInit {
             } else if (mv_func1 > 1.923 && mv_func1 <= 13.228) //Range 2
             {
               let OOR_Flag = 0; //Out of Range OFF
-               Coef = [1.334584505 * Math.pow(10, 1),
+              Coef = [1.334584505 * Math.pow(10, 1),
                 1.472644573 * Math.pow(10, 2),
                 -1.844024844 * Math.pow(10, 1),
                 4.031129726 * Math.pow(10, 0),
@@ -1102,7 +1109,7 @@ export class AppComponent implements OnInit {
             } else if (mv_func1 > 13.228 && mv_func1 <= 19.739) //Range 3
             {
               let OOR_Flag = 0; //Out of Range OFF
-               Coef = [-8.199599416 * Math.pow(10, 1),
+              Coef = [-8.199599416 * Math.pow(10, 1),
                 1.553962042 * Math.pow(10, 2),
                 -8.342197663 * Math.pow(10, 0),
                 4.279433549 * Math.pow(10, -1),
@@ -1121,7 +1128,7 @@ export class AppComponent implements OnInit {
             } else if (mv_func1 > 19.739 && mv_func1 <= 21.103) //Range 4
             {
               let OOR_Flag = 0; //Out of Range OFF
-               Coef = [3.406177836 * Math.pow(10, 4),
+              Coef = [3.406177836 * Math.pow(10, 4),
                 -7.023729171 * Math.pow(10, 3),
                 5.582903813 * Math.pow(10, 2),
                 -1.952394635 * Math.pow(10, 1),
@@ -1149,7 +1156,7 @@ export class AppComponent implements OnInit {
             if (temp_func1 >= -50 && temp_func1 <= 1064.180) //Range 1
             {
               let OOR_Flag = 0; //Out of Range OFF
-               Coef = [0,
+              Coef = [0,
                 0.528961729765 * Math.pow(10, -2),
                 0.139166589782 * Math.pow(10, -4),
                 -0.238855693017 * Math.pow(10, -7),
@@ -1168,7 +1175,7 @@ export class AppComponent implements OnInit {
             } else if (temp_func1 > 1064.180 && temp_func1 <= 1664.500) //Range 2
             {
               let OOR_Flag = 0; //Out of Range OFF
-               Coef = [0.295157925316 * Math.pow(10, 1),
+              Coef = [0.295157925316 * Math.pow(10, 1),
                 -0.252061251332 * Math.pow(10, -2),
                 0.159564501865 * Math.pow(10, -4),
                 -0.764085947576 * Math.pow(10, -8),
@@ -1187,7 +1194,7 @@ export class AppComponent implements OnInit {
             } else if (temp_func1 > 1664.500 && temp_func1 <= 1768.100) //Range 3
             {
               let OOR_Flag = 0; //Out of Range OFF
-               Coef = [0.152232118209 * Math.pow(10, 3),
+              Coef = [0.152232118209 * Math.pow(10, 3),
                 -0.268819888545 * Math.pow(10, 0),
                 0.171280280471 * Math.pow(10, -3),
                 -0.345895706453 * Math.pow(10, -7),
@@ -1213,13 +1220,13 @@ export class AppComponent implements OnInit {
         }
         break;
 
-      case "7": //S Type
+      case "S": //S Type
         switch (calcuType) {
           case "temperature": //mV to T(inverse)
             if (mv_func1 >= -0.235 && mv_func1 <= 1.874) //Range 1
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [0,
+               Coef = [0,
                 1.84949460 * Math.pow(10, 2),
                 -8.00504062 * Math.pow(10, 1),
                 1.02237430 * Math.pow(10, 2),
@@ -1238,7 +1245,7 @@ export class AppComponent implements OnInit {
             } else if (mv_func1 > 1.874 && mv_func1 <= 11.950) //Range 2
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [1.291507177 * Math.pow(10, 1),
+               Coef = [1.291507177 * Math.pow(10, 1),
                 1.466298863 * Math.pow(10, 2),
                 -1.534713402 * Math.pow(10, 1),
                 3.145945973 * Math.pow(10, 0),
@@ -1257,7 +1264,7 @@ export class AppComponent implements OnInit {
             } else if (mv_func1 > 11.950 && mv_func1 <= 17.536) //Range 3
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [-8.087801117 * Math.pow(10, 1),
+               Coef = [-8.087801117 * Math.pow(10, 1),
                 1.621573104 * Math.pow(10, 2),
                 -8.536869453 * Math.pow(10, 0),
                 4.719686976 * Math.pow(10, -1),
@@ -1276,7 +1283,7 @@ export class AppComponent implements OnInit {
             } else if (mv_func1 > 17.536 && mv_func1 <= 18.693) //Range 4
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [5.333875126 * Math.pow(10, 4),
+               Coef = [5.333875126 * Math.pow(10, 4),
                 -1.235892298 * Math.pow(10, 4),
                 1.092657613 * Math.pow(10, 3),
                 -4.265693686 * Math.pow(10, 1),
@@ -1304,7 +1311,7 @@ export class AppComponent implements OnInit {
             if (temp_func1 >= -50 && temp_func1 <= 1064.180) //Range 1
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [0,
+               Coef = [0,
                 0.540313308631 * Math.pow(10, -2),
                 0.125934289740 * Math.pow(10, -4),
                 -0.232477968689 * Math.pow(10, -7),
@@ -1323,7 +1330,7 @@ export class AppComponent implements OnInit {
             } else if (temp_func1 > 1064.180 && temp_func1 <= 1664.500) //Range 2
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [0.132900444085 * Math.pow(10, 1),
+               Coef = [0.132900444085 * Math.pow(10, 1),
                 0.334509311344 * Math.pow(10, -2),
                 0.654805192818 * Math.pow(10, -5),
                 -0.164856259209 * Math.pow(10, -8),
@@ -1342,7 +1349,7 @@ export class AppComponent implements OnInit {
             } else if (temp_func1 > 1664.500 && temp_func1 <= 1768.100) //Range 3
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [0.146628232636 * Math.pow(10, 3),
+               Coef = [0.146628232636 * Math.pow(10, 3),
                 -0.258430516752 * Math.pow(10, 0),
                 0.163693574641 * Math.pow(10, -3),
                 -0.330439046987 * Math.pow(10, -7),
@@ -1368,13 +1375,13 @@ export class AppComponent implements OnInit {
         }
         break;
 
-      case "8": //T Type
+      case "T": //T Type
         switch (calcuType) {
           case "temperature": //mV to T(inverse)
             if (mv_func1 >= -5.603 && mv_func1 <= 0) //Range 1
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [0,
+               Coef = [0,
                 2.5949192 * Math.pow(10, 1),
                 -2.1316967 * Math.pow(10, -1),
                 7.9018692 * Math.pow(10, -1),
@@ -1393,7 +1400,7 @@ export class AppComponent implements OnInit {
             } else if (mv_func1 > 0 && mv_func1 <= 20.872) //Range 2
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [0,
+               Coef = [0,
                 2.592800 * Math.pow(10, 1),
                 -7.602961 * Math.pow(10, -1),
                 4.637791 * Math.pow(10, -2),
@@ -1421,7 +1428,7 @@ export class AppComponent implements OnInit {
             if (temp_func1 >= -200 && temp_func1 <= 0) //Range 1
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [0,
+               Coef = [0,
                 0.387481063640 * Math.pow(10, -1),
                 0.441944343470 * Math.pow(10, -4),
                 0.118443231050 * Math.pow(10, -6),
@@ -1440,7 +1447,7 @@ export class AppComponent implements OnInit {
             } else if (temp_func1 > 0 && temp_func1 <= 400) //Range 2
             {
               let OOR_Flag = 0; //Out of Range OFF
-              let Coef = [0,
+               Coef = [0,
                 0.387481063640 * Math.pow(10, -1),
                 0.332922278800 * Math.pow(10, -4),
                 0.206182434040 * Math.pow(10, -6),
@@ -1483,7 +1490,7 @@ export class AppComponent implements OnInit {
         {
           result = result + 273.15;
         }
-debugger
+
         result = Math.round(result * 1000) / 1000
         this.form.get('temp_in')?.setValue(result - amb_mv);
         break;
@@ -1544,163 +1551,163 @@ debugger
     // }
   }
 
-  // rangeSet(ThermType, caletyp) //displays the range for current thermocouple
-  // {
-  //
-  //   if (Scaletyp === "1") { //for Celsius
-  //     switch (Thermtyp) {
-  //       // case "1": //Type B
-  //       //   document.getElementById("TempRange").innerHTML = "250 to 1820 &deg;C";
-  //       //   document.getElementById("VoltRange").innerHTML = "0.291 to 13.820 mV";
-  //       //   break;
-  //       //
-  //       // case "2": //Type E
-  //       //   document.getElementById("TempRange").innerHTML = "-200 to 1000 &deg;C";
-  //       //   document.getElementById("VoltRange").innerHTML = "-8.825 to 76.373 mV";
-  //       //   break;
-  //       //
-  //       // case "3": //Type J
-  //       //   document.getElementById("TempRange").innerHTML = "-210 to 1200 &deg;C";
-  //       //   document.getElementById("VoltRange").innerHTML = "-8.095 to 69.553 mV";
-  //       //   break;
-  //       //
-  //       // case "4": //Type K
-  //       //   document.getElementById("TempRange").innerHTML = "-200 to 1372 &deg;C";
-  //       //   document.getElementById("VoltRange").innerHTML = "-5.891 to 54.886 mV";
-  //       //   break;
-  //       //
-  //       // case "5": //Type N
-  //       //   document.getElementById("TempRange").innerHTML = "-200 to 1300 &deg;C";
-  //       //   document.getElementById("VoltRange").innerHTML = "-3.990 to 47.513 mV";
-  //       //   break;
-  //
-  //       case "6": //Type R
-  //         document.getElementById("TempRange").innerHTML = "-50 to 1768.100 &deg;C";
-  //         document.getElementById("VoltRange").innerHTML = "-0.226 to 21.103 mV";
-  //         break;
-  //
-  //       // case "7": //Type S
-  //       //   document.getElementById("TempRange").innerHTML = "-50 to 1768.100 &deg;C";
-  //       //   document.getElementById("VoltRange").innerHTML = "-0.235 to 18.693 mV";
-  //       //   break;
-  //       //
-  //       // case "8": //Type T
-  //       //   document.getElementById("TempRange").innerHTML = "-200 to 400 &deg;C";
-  //       //   document.getElementById("VoltRange").innerHTML = "-5.603 to 20.872 mV";
-  //       //   break;
-  //
-  //     }
-  //   } //end if and switch
-  //
-  //   if (Scaletyp === "2") { //for Fahrenheit
-  //     switch (Thermtyp) {
-  //       case "1": //Type B
-  //         document.getElementById("TempRange").innerHTML = "482 to 3308 &deg;F";
-  //         document.getElementById("VoltRange").innerHTML = "0.291 to 13.820 mV";
-  //         break;
-  //
-  //       case "2": //Type E
-  //         document.getElementById("TempRange").innerHTML = "-328 to 1832 &deg;F";
-  //         document.getElementById("VoltRange").innerHTML = "-8.825 to 76.373 mV";
-  //         break;
-  //
-  //       case "3": //Type J
-  //         document.getElementById("TempRange").innerHTML = "-346 to 2192 &deg;F";
-  //         document.getElementById("VoltRange").innerHTML = "-8.095 to 69.553 mV";
-  //         break;
-  //
-  //       case "4": //Type K
-  //         document.getElementById("TempRange").innerHTML = "-328 to 2501.6 &deg;F";
-  //         document.getElementById("VoltRange").innerHTML = "-5.891 to 54.886 mV";
-  //         break;
-  //
-  //       case "5": //Type N
-  //         document.getElementById("TempRange").innerHTML = "-328 to 2372 &deg;F";
-  //         document.getElementById("VoltRange").innerHTML = "-3.990 to 47.513 mV";
-  //         break;
-  //
-  //       case "6": //Type R
-  //         document.getElementById("TempRange").innerHTML = "-58 to 3214.58 &deg;F";
-  //         document.getElementById("VoltRange").innerHTML = "-0.226 to 21.103 mV";
-  //         break;
-  //
-  //       case "7": //Type S
-  //         document.getElementById("TempRange").innerHTML = "-58 to 3214.58 &deg;F";
-  //         document.getElementById("VoltRange").innerHTML = "-0.235 to 18.693 mV";
-  //         break;
-  //
-  //       case "8": //Type T
-  //         document.getElementById("TempRange").innerHTML = "-328 to 752 &deg;F";
-  //         document.getElementById("VoltRange").innerHTML = "-5.603 to 20.872 mV";
-  //         break;
-  //
-  //     }
-  //   } //end if and switch
-  //
-  //   if (Scaletyp === "3") { //for Kelvin
-  //     switch (Thermtyp) {
-  //       case "1": //Type B
-  //         document.getElementById("TempRange").innerHTML = "523.15 to 2093.15 K";
-  //         document.getElementById("VoltRange").innerHTML = "0.291 to 13.820 mV";
-  //         break;
-  //
-  //       case "2": //Type E
-  //         document.getElementById("TempRange").innerHTML = "73.15 to 1273.15 K";
-  //         document.getElementById("VoltRange").innerHTML = "-8.825 to 76.373 mV";
-  //         break;
-  //
-  //       case "3": //Type J
-  //         document.getElementById("TempRange").innerHTML = "63.15 to 1473.15 K";
-  //         document.getElementById("VoltRange").innerHTML = "-8.095 to 69.553 mV";
-  //         break;
-  //
-  //       case "4": //Type K
-  //         document.getElementById("TempRange").innerHTML = "73.15 to 1645.15 K";
-  //         document.getElementById("VoltRange").innerHTML = "-5.891 to 54.886 mV";
-  //         break;
-  //
-  //       case "5": //Type N
-  //         document.getElementById("TempRange").innerHTML = "73.15 to 1573.15 K";
-  //         document.getElementById("VoltRange").innerHTML = "-3.990 to 47.513 mV";
-  //         break;
-  //
-  //       case "6": //Type R
-  //         document.getElementById("TempRange").innerHTML = "223.15 to 2041.25 K";
-  //         document.getElementById("VoltRange").innerHTML = "-0.226 to 21.103 mV";
-  //         break;
-  //
-  //       case "7": //Type S
-  //         document.getElementById("TempRange").innerHTML = "223 to 2041.25 K";
-  //         document.getElementById("VoltRange").innerHTML = "-0.235 to 18.693 mV";
-  //         break;
-  //
-  //       case "8": //Type T
-  //         document.getElementById("TempRange").innerHTML = "73 to 673.15 K";
-  //         document.getElementById("VoltRange").innerHTML = "-5.603 to 20.872 mV";
-  //         break;
-  //
-  //     }
-  //   } //end if and switch
-  // }
+  thermRangeSet(thermType: string, scaleType: string) //displays the range for current thermocouple
+  {
+    if (scaleType === "C") { //for Celsius
+      switch (thermType) {
+        case "B": //Type B
+          this.temperatureRange = "250 to 1820 &deg;C";
+          this.voltageRange = "0.291 to 13.820 mV";
+          break;
 
-  thermRangeSet(scaleType: string) {
-    switch (scaleType) {
-      case "C": //Type R
-        this.temperatureRange = "-50 to 1768.100 °C";
-        this.voltageRange = "-0.226 to 21.103 mV";
-        break;
+        case "E": //Type E
+          this.temperatureRange = "-200 to 1000 &deg;C";
+          this.voltageRange = "-8.825 to 76.373 mV";
+          break;
 
-      case "F": //Type R
-        this.temperatureRange = "-58 to 3214.58 °F";
-        this.voltageRange = "-0.226 to 21.103 mV";
-        break;
+        case "J": //Type J
+          this.temperatureRange = "-210 to 1200 &deg;C";
+          this.voltageRange = "-8.095 to 69.553 mV";
+          break;
 
-      case "K": //Type R
-        this.temperatureRange = "223.15 to 2041.25 K";
-        this.voltageRange = "-0.226 to 21.103 mV";
-        break;
-    }
+        case "K": //Type K
+          this.temperatureRange = "-200 to 1372 &deg;C";
+          this.voltageRange = "-5.891 to 54.886 mV";
+          break;
+
+        case "N": //Type N
+          this.temperatureRange = "-200 to 1300 &deg;C";
+          this.voltageRange = "-3.990 to 47.513 mV";
+          break;
+
+        case "R": //Type R
+          this.temperatureRange = "-50 to 1768.100 &deg;C";
+          this.voltageRange = "-0.226 to 21.103 mV";
+          break;
+
+        case "S": //Type S
+          this.temperatureRange = "-50 to 1768.100 &deg;C";
+          this.voltageRange = "-0.235 to 18.693 mV";
+          break;
+
+        case "T": //Type T
+          this.temperatureRange = "-200 to 400 &deg;C";
+          this.voltageRange = "-5.603 to 20.872 mV";
+          break;
+
+      }
+    } //end if and switch
+
+    if (scaleType === "F") { //for Fahrenheit
+      switch (thermType) {
+        case "B": //Type B
+          this.temperatureRange = "482 to 3308 &deg;F";
+          this.voltageRange = "0.291 to 13.820 mV";
+          break;
+
+        case "E": //Type E
+          this.temperatureRange = "-328 to 1832 &deg;F";
+          this.voltageRange = "-8.825 to 76.373 mV";
+          break;
+
+        case "J": //Type J
+          this.temperatureRange = "-346 to 2192 &deg;F";
+          this.voltageRange = "-8.095 to 69.553 mV";
+          break;
+
+        case "K": //Type K
+          this.temperatureRange = "-328 to 2501.6 &deg;F";
+          this.voltageRange = "-5.891 to 54.886 mV";
+          break;
+
+        case "N": //Type N
+          this.temperatureRange = "-328 to 2372 &deg;F";
+          this.voltageRange = "-3.990 to 47.513 mV";
+          break;
+
+        case "R": //Type R
+          this.temperatureRange = "-58 to 3214.58 &deg;F";
+          this.voltageRange = "-0.226 to 21.103 mV";
+          break;
+
+        case "S": //Type S
+          this.temperatureRange = "-58 to 3214.58 &deg;F";
+          this.voltageRange = "-0.235 to 18.693 mV";
+          break;
+
+        case "T": //Type T
+          this.temperatureRange = "-328 to 752 &deg;F";
+          this.voltageRange = "-5.603 to 20.872 mV";
+          break;
+
+      }
+    } //end if and switch
+
+    if (scaleType === "K") { //for Kelvin
+      switch (thermType) {
+        case "B": //Type B
+          this.temperatureRange = "523.15 to 2093.15 K";
+          this.voltageRange = "0.291 to 13.820 mV";
+          break;
+
+        case "E": //Type E
+          this.temperatureRange = "73.15 to 1273.15 K";
+          this.voltageRange = "-8.825 to 76.373 mV";
+          break;
+
+        case "J": //Type J
+          this.temperatureRange = "63.15 to 1473.15 K";
+          this.voltageRange = "-8.095 to 69.553 mV";
+          break;
+
+        case "K": //Type K
+          this.temperatureRange = "73.15 to 1645.15 K";
+          this.voltageRange = "-5.891 to 54.886 mV";
+          break;
+
+        case "N": //Type N
+          this.temperatureRange = "73.15 to 1573.15 K";
+          this.voltageRange = "-3.990 to 47.513 mV";
+          break;
+
+        case "R": //Type R
+          this.temperatureRange = "223.15 to 2041.25 K";
+          this.voltageRange = "-0.226 to 21.103 mV";
+          break;
+
+        case "S": //Type S
+          this.temperatureRange = "223 to 2041.25 K";
+          this.voltageRange = "-0.235 to 18.693 mV";
+          break;
+
+        case "T": //Type T
+          this.temperatureRange = "73 to 673.15 K";
+          this.voltageRange = "-5.603 to 20.872 mV";
+          break;
+
+      }
+    } //end if and switch
   }
+
+  //
+  // thermRangeSet(scaleType: string) {
+  //   switch (scaleType) {
+  //     case "C": //Type R
+  //       this.temperatureRange = "-50 to 1768.100 °C";
+  //       this.voltageRange = "-0.226 to 21.103 mV";
+  //       break;
+  //
+  //     case "F": //Type R
+  //       this.temperatureRange = "-58 to 3214.58 °F";
+  //       this.voltageRange = "-0.226 to 21.103 mV";
+  //       break;
+  //
+  //     case "K": //Type R
+  //       this.temperatureRange = "223.15 to 2041.25 K";
+  //       this.voltageRange = "-0.226 to 21.103 mV";
+  //       break;
+  //   }
+  // }
 
 
   // updateAmb(Tscale) { макс значения для  Ambient Temperature
