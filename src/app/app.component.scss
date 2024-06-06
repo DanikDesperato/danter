@@ -1,22 +1,26 @@
 @import "@angular/material/core/theming/_palette.scss";
+
 :host {
   display: flex;
   flex-direction: column;
   //align-items: flex-start;
 }
 
-.main_title{
+.main_title {
   color: $light-primary-text;
-}
-.main_container{
   display: flex;
-margin-top: 300px;
+  justify-content: center;
+}
+
+.main_container {
+  display: flex;
+  margin-top: 300px;
   justify-content: center;
   width: 100%;
   height: 100%;
 }
 
-.form_container{
+.form_container {
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -24,16 +28,21 @@ margin-top: 300px;
   height: 100%;
 }
 
-.form_calculate-button-container{
+.form_calculate-button-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
+  width: 100% !important;
 }
-.form_calculate-button{
+
+.form_calculate-button {
   width: 30%;
+  @media (max-width: 762px) {
+    width: 100%;
+  }
 }
-.form_container_input{
+
+.form_container_input {
   cursor: auto;
   width: 100%;
 }
